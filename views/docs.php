@@ -1,6 +1,6 @@
 <?
 
-  function link($url) {
+  function link_to($url) {
     echo "<a href=\"$url\">$url</a>";
   }
 
@@ -13,12 +13,12 @@
 
   <section>
     <h1>GET /tracks/:activity_id/:user_id/:event_type</h1>
-    <p>example: <?= link("/tracks/1/1/click") ?></p>
+    <p>example: <?= link_to("/tracks/1/1/click") ?></p>
 
     <h1>GET /activities/:activity_id</h1>
-    <p>example: <?= link("/activities/1") ?></p>
+    <p>example: <?= link_to("/activities/1") ?></p>
 
     <h1>GET /users/:user_id</h1>
-    <p>example: <?= link("/users/1") ?></p>
+    <p>example: <?= link_to("/users/1") ?></p>
   </section>
 </section>
