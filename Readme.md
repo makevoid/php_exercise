@@ -1,11 +1,6 @@
 # PHP Exercise
 
 
+to run the project, drop it in an apache directory then visit /
 
-to run the project
-
-
----
-
-this is the exercise:
-
+you need mod_rewrite enabled
