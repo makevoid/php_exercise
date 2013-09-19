@@ -19,9 +19,22 @@ $app->get('/', function() use ($app){
 });
 
 
+// create some response mocks
+
 // TODO: create a Renderer class
-function json(){
-  echo "{ a: \"b\" }";
+function mock_response($type){
+  switch ($type) {
+    case "user":
+      echo "{ id: 1, name: \"mario\" }";
+      break;
+    case "track":
+      echo "{ id: 1, name: \"mario\" }";
+      break;
+    case "activity":
+      echo "{ id: 1, name: \"mario\" }";
+      break;
+  }
+
 }
 
 // TODO: create a Response class, extend it and make this an InvalidResponse
@@ -46,34 +59,38 @@ class Event {
 $app->get('/tracks/:activity_id/:user_id/:event_type', function($activity_id, $user_id, $event_type) use ($app){
 
   // parameters checks
-  if ( !is_integer($activity_id) | !is_integer($user_id) ) {
+  if ( !is_numeric($user_id) ) {
     invalid_response($app, "You need to pass integers as arguments");
   }
   if ( !in_array($event_type, Event::$types) ) {
     invalid_response($app, ":event_type needs to be in: ".print_r(Event::$types));
   }
+  // parameters checks
+  if ( !preg_match("/[\w\d]{4,9}/i", $activity_id) ) {
+    invalid_response($app, "You need to pass a valid activity");
+  }
 
-  json();
+  mock_response("track");
 });
 
 $app->get('/activities/:activity_id', function($activity_id) use ($app){
 
   // parameters checks
-  if ( !is_integer($activity_id) ) {
-    invalid_response($app, "You need to pass integers as arguments");
+  if ( !preg_match("/[\w\d]{4,9}/i", $activity_id) ) {
+    invalid_response($app, "You need to pass a valid activity");
   }
 
-  json();
+  mock_response("activity");
 });
 
 $app->get('/users/:user_id', function($user_id) use ($app){
 
   // parameters checks
-  if ( !is_integer($user_id) ) {
+  if ( !is_numeric($user_id) ) {
     invalid_response($app, "You need to pass integers as arguments");
   }
 
-  json();
+  mock_response("user");
 });
 
 
