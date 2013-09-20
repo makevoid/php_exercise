@@ -1,10 +1,10 @@
 <?
 
 // uncomment this line to use the production db:
-// $m = new Mongo("mongodb://squaretestuser:squaretestpassword@ds045948.mongolab.com:45948/squaretestdb");
+$m = new Mongo("mongodb://squaretestuser:squaretestpassword@ds045948.mongolab.com:45948/squaretestdb");
 
-// this is the test db:
-$m = new Mongo("mongodb://localhost");
+// this is the local test db:
+//$m = new Mongo("mongodb://localhost");
 
 
 if ( !$m.$connected ) {
