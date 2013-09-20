@@ -115,7 +115,7 @@ $app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $u
   // TODO: refactor collections
   $db = $app->config('db');
   $activities = new MongoCollection($db, 'activities');
-  $users      = new MongoCollection($db, 'activities');
+  $users      = new MongoCollection($db, 'users');
   $events     = new MongoCollection($db, 'events');
   
   $event = array(
