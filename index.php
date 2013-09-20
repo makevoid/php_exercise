@@ -12,7 +12,7 @@ $app = new \Slim\Slim(array(
     'templates.path' => './views'
 ));
 
-require "config/env.php"
+require "config/env.php";
 
 // routes
 
