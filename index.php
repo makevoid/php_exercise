@@ -12,6 +12,8 @@ $app = new \Slim\Slim(array(
     'templates.path' => './views'
 ));
 
+require "config/env.php"
+
 // routes
 
 $app->get('/', function() use ($app){
@@ -94,9 +96,41 @@ $app->get('/users/:user_id', function($user_id) use ($app){
 });
 
 
-// /track/<ActivityID>/<UserID>/<Event>
-// /activity/<ActivityID>
-// /user/<UserID>
+// note: renamed /tracks to /events as it make more sense
+// TODO: change method from PUT to POST as it's the creation of an event and not an update to a resource (event)
+// FIXME: move :activity_id, :user_id, :event_type into post sent parameters so the url is only /events
+$app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $user_id, $event_type) use ($app){
+  $req = $app->request;
+
+  $event = "{ activity_id: \"$activity_id\" , user_id: \"$user_id\" , event_type: \"$event_type\", created_at: ".time().", user_agent: \"".$req->getUserAgent()."\", ip_address: \"".$req->getIp()."\" }";
+
+  // pseudo code:
+
+  // TODO: rename in "events:activity_id" maybe...
+  // store("track_[activity_id]", $event);
+
+
+  // update activities
+  // $activity = find("activity", $activity_id);
+  // incr($activity["counters"][$event_type]);
+  // update($activity);
+
+
+  // update users
+  // $user = find("user", $user_id);
+  // incr($user["counters"][$event_type]);
+
+  // TODO: skipped those two:
+  // - Setting, on document creation, a creation time field to the current timestamp.
+  // - Setting a last update field to the current timestamp.
+
+
+  echo $event;
+});
+
+function update() {
+  // TODO: set updated_at to time()
+}
 
 
 // run
