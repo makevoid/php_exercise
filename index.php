@@ -44,10 +44,12 @@ function invalid_response($app, $hint='') {
   $app->halt(400, "<h1>Invalid response</h1><p>$hint</p><p>go back to the <a href=\"/\">API docs</a></p>");
 }
 
-
-class Event {
-  public static $types = ["enter", "click", "exit"];
-}
+// PHP 5.4
+// class Event {
+//   public static $types = ["enter", "click", "exit"];
+// }
+// PHP 5.3
+// $event_types = ["enter", "click", "exit"];
 
 // TODO: move each route in a different file for a more modular structure
 
@@ -64,7 +66,8 @@ $app->get('/tracks/:activity_id/:user_id/:event_type', function($activity_id, $u
   if ( !is_numeric($user_id) ) {
     invalid_response($app, "You need to pass integers as arguments");
   }
-  if ( !in_array($event_type, Event::$types) ) {
+  //if ( !in_array($event_type, Event::$types) ) {
+  if ( !in_array($event_type, $event_types) ) {
     invalid_response($app, ":event_type needs to be in: ".print_r(Event::$types));
   }
   // parameters checks

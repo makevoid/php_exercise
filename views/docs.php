@@ -28,4 +28,36 @@
       <input type="submit" />
     </form>
   </section>
+  
+  <h1>DB</h1>
+  <section>
+    <?
+    
+      $m = new Mongo("mongodb://localhost");
+      $db = $m->selectDB('squaretestdb');
+      $users = new MongoCollection($db, 'users');
+      
+      // insert
+      // $user = array("name" => "mario");
+      // $users->insert($user);
+      
+      // find all
+      $cursor = $users->find();
+      foreach ($cursor as $doc) { 
+        echo print_r($doc);
+        echo "<br>";
+        // echo var_dump($doc); 
+        echo $doc["name"];
+      }
+      
+      // update
+      $users->update(
+        array("name" => "luigi"), 
+        array('$set' => array('name' => "mario"))
+      );
+      
+      
+      
+    ?>
+  </section>
 </section>
