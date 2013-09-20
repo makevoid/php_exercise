@@ -128,26 +128,19 @@ $app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $u
   );
   $events->insert($event);
   
-
-  // pseudo code:
-
-  // TODO: rename in "events:activity_id" maybe...
-  // store("track_[activity_id]", $event);
-
-
   $activities->update(
     array('id'    => $activity_id), 
-    array('$inc'  => array("counters.$event_type" => 1))
+    array(  
+      '$inc'  => array("counters.$event_type" => 1)//,
+      // "updated_at" => new MongoDate()
+    )
   );
   
   $users->update(
-    array('id'    => $activity_id), 
+    array('id'    => $user_id), 
     array('$inc'  => array("counters.$activity_id.$event_type" => 1))
   );
-
-  // update users
-  // $user = find("user", $user_id);
-  // incr($user["counters"][$event_type]);
+  
 
   // TODO: skipped those two:
   // - Setting, on document creation, a creation time field to the current timestamp.
