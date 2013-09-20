@@ -21,10 +21,10 @@
     <h1>GET /users/:user_id</h1>
     <p>example: <?= link_to("/users/1") ?></p>
 
-    <h1>PUT /tracks/:activity_id/:user_id/:event_type</h1>
+    <h1>PUT /events/:activity_id/:user_id/:event_type</h1>
     <p>example:</p>
-    <form method="put" action="/tracks/ff7x/1/click">
-      <!-- <input name="_method" value="PUT" type="hidden" /> use this as a fallback for older browser, need to change the server to accept the PUT/DELETE fallback -->
+    <form method="post" action="/events/ff7x/1/click">
+      <input name="_METHOD" value="PUT" type="hidden" />
       <input type="submit" />
     </form>
   </section>
@@ -37,22 +37,11 @@
       // $user = array("name" => "mario");
       // $users->insert($user);
       
-      // find all
-      $cursor = $users->find();
-      foreach ($cursor as $doc) { 
-        echo print_r($doc);
-        echo "<br>";
-        // echo var_dump($doc); 
-        echo $doc["name"];
-      }
-      
       // update
-      $users->update(
-        array("name" => "luigi"), 
-        array('$set' => array('name' => "mario"))
-      );
-      
-      
+      // $users->update(
+      //   array("name" => "luigi"), 
+      //   array('$set' => array('name' => "mario"))
+      // );
       
     ?>
   </section>

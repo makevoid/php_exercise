@@ -39,24 +39,6 @@ $app->get('/', function() use ($app){
 });
 
 
-// create some response mocks
-
-// TODO: create a Renderer class
-function mock_response($type){
-  switch ($type) {
-    case "user":
-      echo "{ id: 1, name: \"mario\" }";
-      break;
-    case "track":
-      echo "{ id: 1, name: \"mario\" }";
-      break;
-    case "activity":
-      echo "{ id: 1, name: \"mario\" }";
-      break;
-  }
-
-}
-
 // TODO: create a Response class, extend it and make this an InvalidResponse
 function invalid_response($app, $hint='') {
   $app->halt(400, "<h1>Invalid response</h1><p>$hint</p><p>go back to the <a href=\"/\">API docs</a></p>");
@@ -145,12 +127,13 @@ $app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $u
   // TODO: rename in "events:activity_id" maybe...
   // store("track_[activity_id]", $event);
 
-
-  // update activities
-  // $activity = find("activity", $activity_id);
-  // incr($activity["counters"][$event_type]);
-  // update($activity);
-
+  // TODO: refactor 
+  $db = $app->config('db');
+  $activities = new MongoCollection($db, 'activities');
+  $activities->update(
+    array('id'    => $activity_id), 
+    array('$inc'  => array("counters.$event_type" => 1))
+  );
 
   // update users
   // $user = find("user", $user_id);
@@ -161,7 +144,8 @@ $app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $u
   // - Setting a last update field to the current timestamp.
 
 
-  echo $event;
+  // echo $event;
+  echo json_encode(array("success" => "true"));
 });
 
 function update() {
