@@ -40,8 +40,8 @@ $app->get('/', function() use ($app){
 
 
 // TODO: create a Response class, extend it and make this an InvalidResponse
-function invalid_response($app, $hint='') {
-  $app->halt(400, "<h1>Invalid response</h1><p>$hint</p><p>go back to the <a href=\"/\">API docs</a></p>");
+function invalid_response($app, $error='') {
+  $app->halt(400, json_encode(array("error" => $error)));
 }
 
 // PHP 5.4
@@ -58,7 +58,42 @@ function invalid_response($app, $hint='') {
 //       and POST, PUT, DELETE /collection/id
 //       then GET /collection and POST /collection
 //       the collection name is usually plural as in URLs (it makes sense if you think urls more like directories / levels)
-$app->get('/events/:activity_id/:user_id/:event_type', function($activity_id, $user_id, $event_type) use ($app){
+
+$app->get('/activities/:activity_id', function($activity_id) use ($app){
+
+  // parameters checks
+  if ( !preg_match("/[\w\d]{4,9}/i", $activity_id) ) {
+    invalid_response($app, "You need to pass a valid activity");
+  }
+  
+  // TODO: refactor collections
+  $db = $app->config('db');
+  $activities = new MongoCollection($db, 'activities');
+  $activity = $activities->findOne( array('id' => $activity_id) );
+  unset($activity["_id"]);
+  echo json_encode($activity);
+});
+
+$app->get('/users/:user_id', function($user_id) use ($app){
+
+  // parameters checks
+  if ( !is_numeric($user_id) ) {
+    invalid_response($app, "You need to pass integers as arguments");
+  }
+  
+  // TODO: refactor collections
+  $db = $app->config('db');
+  $users = new MongoCollection($db, 'users');
+  $user = $users->findOne( array('id' => intval($user_id)) );
+  unset($user["_id"]);
+  echo json_encode($user);
+});
+
+
+// note: renamed /track to /events as it make more sense
+// TODO: change method from PUT to POST as it's the creation of an event and not an update to a resource (event)
+// FIXME: move :activity_id, :user_id, :event_type into post sent parameters so the url is only /events
+$app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $user_id, $event_type) use ($app){
 
   // parameters checks
   if ( !is_numeric($user_id) ) {
@@ -74,53 +109,10 @@ $app->get('/events/:activity_id/:user_id/:event_type', function($activity_id, $u
   if ( !preg_match("/[\w\d]{4,9}/i", $activity_id) ) {
     invalid_response($app, "You need to pass a valid activity");
   }
-  
-  // TODO: refactor 
-  $db = $app->config('db');
-  $events = new MongoCollection($db, 'events');
-  $event = $events->findOne( array('activity_id' => $activity_id, 'user_id' => intval($user_id), 'event_type' => $event_type) );
-  unset($event["_id"]);
-  echo json_encode($event);
-});
 
-$app->get('/activities/:activity_id', function($activity_id) use ($app){
-
-  // parameters checks
-  if ( !preg_match("/[\w\d]{4,9}/i", $activity_id) ) {
-    invalid_response($app, "You need to pass a valid activity");
-  }
-  
-  // TODO: refactor 
-  $db = $app->config('db');
-  $activities = new MongoCollection($db, 'activities');
-  $activity = $activities->findOne( array('id' => $activity_id) );
-  unset($activity["_id"]);
-  echo json_encode($activity);
-});
-
-$app->get('/users/:user_id', function($user_id) use ($app){
-
-  // parameters checks
-  if ( !is_numeric($user_id) ) {
-    invalid_response($app, "You need to pass integers as arguments");
-  }
-  
-  // TODO: refactor 
-  $db = $app->config('db');
-  $users = new MongoCollection($db, 'users');
-  $user = $users->findOne( array('id' => intval($user_id)) );
-  unset($user["_id"]);
-  echo json_encode($user);
-});
-
-
-// note: renamed /track to /events as it make more sense
-// TODO: change method from PUT to POST as it's the creation of an event and not an update to a resource (event)
-// FIXME: move :activity_id, :user_id, :event_type into post sent parameters so the url is only /events
-$app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $user_id, $event_type) use ($app){
   $req = $app->request;
   
-  // TODO: refactor 
+  // TODO: refactor collections
   $db = $app->config('db');
   $activities = new MongoCollection($db, 'activities');
   $users      = new MongoCollection($db, 'activities');
@@ -134,7 +126,6 @@ $app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $u
     "user_agent"  => $req->getUserAgent(),
     "ip_address"  => $req->getIp()
   );
-
   $events->insert($event);
   
 
@@ -151,7 +142,7 @@ $app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $u
   
   $users->update(
     array('id'    => $activity_id), 
-    array('$inc'  => array("counters.$event_type" => 1))
+    array('$inc'  => array("counters.$activity_id.$event_type" => 1))
   );
 
   // update users
@@ -165,6 +156,54 @@ $app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $u
 
   // echo $event;
   echo json_encode(array("success" => "true"));
+});
+
+// TODO: enable only in development
+$app->get('/seed_db', function() use ($app){
+  // TODO: refactor collections
+  $db = $app->config('db');
+  $activities = new MongoCollection($db, 'activities');
+  $users      = new MongoCollection($db, 'users');
+  $events     = new MongoCollection($db, 'events');
+  
+  $activities->remove(  array());
+  $users->remove(       array());
+  $events->remove(      array());
+  
+  $activity = array(
+    "id" => "ff7x",
+    "counters" => array( "enter" => 0, "click" => 0, "exit" => 0 ),
+    "created_at" => new MongoDate()
+  );
+  $activities->insert($activity);
+  $activity = array(
+    "id" => "tr2x",
+    "counters" => array( "enter" => 0, "click" => 0, "exit" => 0 ),
+    "created_at" => new MongoDate()
+  );
+  $activities->insert($activity);
+  
+  $event = array(
+    "id" => 1,
+    "user_id" => 1,
+    "activity_id" => "ff7x",
+    "event_type" => "click",
+    "user_agent" => "Mozilla Firefox",
+    "ip_address" => "127.0.0.1"
+  );
+  $events->insert($event);
+  
+  $user = array(
+    "id" => 1,
+    "counters" => array(
+      "ffx7" => array( "enter" => 0, "click" => 0, "exit" => 0 ),
+      "tr2x" => array( "enter" => 0, "click" => 0, "exit" => 0 ),
+    ),
+    "created_at" => new MongoDate()
+  );
+  $users->insert($user);
+  
+  echo "db seed was successful!";
 });
 
 function update() {

@@ -40,4 +40,4 @@ Event
 
 User 
 
-{id: 1, counters: { enter: 0, click: 0, exit: 0}, created_at: Date(1379671588609) }
+{id: 1, counters: { ffx7: { enter: 0, click: 0, exit: 0}, tr2x: { enter: 0, click: 0, exit: 0} }, created_at: Date(1379671588609) }
