@@ -12,11 +12,11 @@
   <h1>Routes</h1>
 
   <section>
-    <h1>GET /tracks/:activity_id/:user_id/:event_type</h1>
-    <p>example: <?= link_to("/tracks/ff7x/1/click") ?></p>
+    <h1>GET /events/:activity_id/:user_id/:event_type</h1>
+    <p>example: <?= link_to("/events/ff7x/1/click") ?></p>
 
     <h1>GET /activities/:activity_id</h1>
-    <p>example: <?= link_to("/activities/1") ?></p>
+    <p>example: <?= link_to("/activities/ff7x") ?></p>
 
     <h1>GET /users/:user_id</h1>
     <p>example: <?= link_to("/users/1") ?></p>

@@ -66,25 +66,25 @@ function invalid_response($app, $hint='') {
 // class Event {
 //   public static $types = ["enter", "click", "exit"];
 // }
-// PHP 5.3
-// $event_types = ["enter", "click", "exit"];
 
 // TODO: move each route in a different file for a more modular structure
 
 // TODO: refactor parameters check
 
-// renamed /track into /tracks that it follows the REST principle of "directories"
+// renamed /track into /events that it follows the REST principle of "directories"
 // e.g.: /resources_collection_name/collection_id - /collection/id - /posts/1
 //       and POST, PUT, DELETE /collection/id
 //       then GET /collection and POST /collection
 //       the collection name is usually plural as in URLs (it makes sense if you think urls more like directories / levels)
-$app->get('/tracks/:activity_id/:user_id/:event_type', function($activity_id, $user_id, $event_type) use ($app){
+$app->get('/events/:activity_id/:user_id/:event_type', function($activity_id, $user_id, $event_type) use ($app){
 
   // parameters checks
   if ( !is_numeric($user_id) ) {
     invalid_response($app, "You need to pass integers as arguments");
   }
+  // PHP 5.4
   //if ( !in_array($event_type, Event::$types) ) {
+  $event_types = array("enter", "click", "exit"); // 5.3
   if ( !in_array($event_type, $event_types) ) {
     invalid_response($app, ":event_type needs to be in: ".print_r(Event::$types));
   }
@@ -92,8 +92,13 @@ $app->get('/tracks/:activity_id/:user_id/:event_type', function($activity_id, $u
   if ( !preg_match("/[\w\d]{4,9}/i", $activity_id) ) {
     invalid_response($app, "You need to pass a valid activity");
   }
-
-  mock_response("track");
+  
+  // TODO: refactor 
+  $db = $app->config('db');
+  $events = new MongoCollection($db, 'events');
+  $event = $events->findOne( array('activity_id' => $activity_id, 'user_id' => intval($user_id), 'event_type' => $event_type) );
+  unset($event["_id"]);
+  echo json_encode($event);
 });
 
 $app->get('/activities/:activity_id', function($activity_id) use ($app){
@@ -102,8 +107,13 @@ $app->get('/activities/:activity_id', function($activity_id) use ($app){
   if ( !preg_match("/[\w\d]{4,9}/i", $activity_id) ) {
     invalid_response($app, "You need to pass a valid activity");
   }
-
-  mock_response("activity");
+  
+  // TODO: refactor 
+  $db = $app->config('db');
+  $activities = new MongoCollection($db, 'activities');
+  $activity = $activities->findOne( array('id' => $activity_id) );
+  unset($activity["_id"]);
+  echo json_encode($activity);
 });
 
 $app->get('/users/:user_id', function($user_id) use ($app){
@@ -122,7 +132,7 @@ $app->get('/users/:user_id', function($user_id) use ($app){
 });
 
 
-// note: renamed /tracks to /events as it make more sense
+// note: renamed /track to /events as it make more sense
 // TODO: change method from PUT to POST as it's the creation of an event and not an update to a resource (event)
 // FIXME: move :activity_id, :user_id, :event_type into post sent parameters so the url is only /events
 $app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $user_id, $event_type) use ($app){
