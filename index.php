@@ -14,10 +14,28 @@ $app = new \Slim\Slim(array(
 
 require "config/env.php";
 
+$m = new Mongo("mongodb://localhost");
+$db = $m->selectDB('squaretestdb');
+// FIXME: for php 5.4 create a static class DB
+$app->config('db', $db);
+
+
 // routes
 
 $app->get('/', function() use ($app){
-  $app->render("docs.php");
+  // just for show/debug
+  
+  $db = $app->config('db');
+  $users      = new MongoCollection($db, 'users');
+  $activities = new MongoCollection($db, 'activities');
+  $events     = new MongoCollection($db, 'events');
+
+  $app->render("docs.php", array(
+      'users'      => $users,
+      'activities' => $activities,
+      'events'     => $events            
+    )
+  );
 });
 
 
@@ -94,8 +112,13 @@ $app->get('/users/:user_id', function($user_id) use ($app){
   if ( !is_numeric($user_id) ) {
     invalid_response($app, "You need to pass integers as arguments");
   }
-
-  mock_response("user");
+  
+  // TODO: refactor 
+  $db = $app->config('db');
+  $users = new MongoCollection($db, 'users');
+  $user = $users->findOne( array('id' => intval($user_id)) );
+  unset($user["_id"]);
+  echo json_encode($user);
 });
 
 

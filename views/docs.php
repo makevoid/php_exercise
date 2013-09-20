@@ -29,14 +29,10 @@
     </form>
   </section>
   
-  <h1>DB</h1>
+  <h1>DB debug</h1>
+  <p><b>just for development</b></p>
   <section>
     <?
-    
-      $m = new Mongo("mongodb://localhost");
-      $db = $m->selectDB('squaretestdb');
-      $users = new MongoCollection($db, 'users');
-      
       // insert
       // $user = array("name" => "mario");
       // $users->insert($user);
