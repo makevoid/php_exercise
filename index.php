@@ -119,18 +119,37 @@ $app->get('/users/:user_id', function($user_id) use ($app){
 // FIXME: move :activity_id, :user_id, :event_type into post sent parameters so the url is only /events
 $app->put('/events/:activity_id/:user_id/:event_type', function($activity_id, $user_id, $event_type) use ($app){
   $req = $app->request;
+  
+  // TODO: refactor 
+  $db = $app->config('db');
+  $activities = new MongoCollection($db, 'activities');
+  $users      = new MongoCollection($db, 'activities');
+  $events     = new MongoCollection($db, 'events');
+  
+  $event = array(
+    "activity_id" => $activity_id,
+    "user_id"     => $user_id,
+    "event_type"  => $event_type,
+    "created_at"  => new MongoDate(),
+    "user_agent"  => $req->getUserAgent(),
+    "ip_address"  => $req->getIp()
+  );
 
-  $event = "{ activity_id: \"$activity_id\" , user_id: \"$user_id\" , event_type: \"$event_type\", created_at: ".time().", user_agent: \"".$req->getUserAgent()."\", ip_address: \"".$req->getIp()."\" }";
+  $events->insert($event);
+  
 
   // pseudo code:
 
   // TODO: rename in "events:activity_id" maybe...
   // store("track_[activity_id]", $event);
 
-  // TODO: refactor 
-  $db = $app->config('db');
-  $activities = new MongoCollection($db, 'activities');
+
   $activities->update(
+    array('id'    => $activity_id), 
+    array('$inc'  => array("counters.$event_type" => 1))
+  );
+  
+  $users->update(
     array('id'    => $activity_id), 
     array('$inc'  => array("counters.$event_type" => 1))
   );

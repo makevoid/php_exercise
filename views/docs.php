@@ -28,21 +28,5 @@
       <input type="submit" />
     </form>
   </section>
-  
-  <h1>DB debug</h1>
-  <p><b>just for development</b></p>
-  <section>
-    <?
-      // insert
-      // $user = array("name" => "mario");
-      // $users->insert($user);
-      
-      // update
-      // $users->update(
-      //   array("name" => "luigi"), 
-      //   array('$set' => array('name' => "mario"))
-      // );
-      
-    ?>
   </section>
 </section>
